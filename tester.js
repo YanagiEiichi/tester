@@ -9,6 +9,7 @@ var Tester = new function() {
       .tester { border-collapse: collapse; }\
       .tester td { border: 1px solid #ccc; padding: 5px; }\
       .tester thead td { background: #eee; font-weight: bold; }\
+      .tester tfoot td { text-align: right; }\
     ';
     head.insertBefore(style, head.firstChild);
   };
@@ -18,8 +19,9 @@ var Tester = new function() {
     var table = document.createElement('table');
     table.className = 'tester';
     var row = table.createTHead().insertRow(-1);
-    row.insertCell().innerHTML = 'State';
+    row.insertCell().innerHTML = 'Time';
     row.insertCell().innerHTML = 'File';
+    row.insertCell().innerHTML = 'State';
     var append = function() {
       document.body.appendChild(table);
     };
@@ -28,8 +30,15 @@ var Tester = new function() {
     return {
       insert: function(status, file) {
         var row = tbody.insertRow(-1);
-        row.insertCell().innerHTML = status;
+        row.insertCell().innerHTML = new Date().toLocaleString();
         row.insertCell().innerHTML = file;
+        row.insertCell().innerHTML = status;
+      },
+      end: function(message) {
+        var row = table.createTFoot().insertRow(-1);
+        var cell = row.insertCell();
+        cell.setAttribute('colspan', 3);
+        cell.innerHTML = message;
       }
     };
   };
@@ -71,9 +80,15 @@ var Tester = new function() {
   this.run = function() {
     var report = createReport();
     var tests = Array.prototype.slice.call(arguments);
-    return tests.reduce(function(promise, file) {
+    var promise = tests.reduce(function(promise, file) {
       return promise.then(runTest.bind(null, report, file)); 
     }, runTest(report, tests.shift()));
+    promise.then(function() {
+      report.end('Success');
+    }, function() {
+      report.end('Error');
+    });
+    return promise;
   };
 }();
 
