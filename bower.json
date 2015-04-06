@@ -1,0 +1,22 @@
+{
+  "name": "tester",
+  "main": "tester.js",
+  "version": "0.0.0",
+  "authors": [
+    "YanagiEiichi <admin@web-tinker.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "homepage": "https://github.com/YanagiEiichi/tester",
+  "description": "A simple web unit tester",
+  "keywords": [
+    "unit",
+    "tester"
+  ]
+}
