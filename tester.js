@@ -3,7 +3,8 @@ var Tester = new function() {
   var head = document.documentElement.firstChild;
 
   addEventListener('message', function(e) {
-    var data = e.data;
+    var data;
+    try { data = JSON.parse(e.data); } catch(error) { data = {}; };
     if(data.jsonrpc !== '2.0' || data.method !== 'Tester.feedback') return;
     path = data.params[0];
     result = data.params[1];
@@ -28,11 +29,11 @@ var Tester = new function() {
 
   this.feedback = function(result) {
     if(parent === window) return console.log(result);
-    parent.postMessage({
+    parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.feedback',
       'params': [ location.href, result ]
-    }, '*');
+    }), '*');
   };
 
   this.run = function() {
