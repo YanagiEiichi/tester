@@ -33,5 +33,3 @@ Tester.run('test-plus.html');
 </script>
 ```
 
-Check your console.
-
