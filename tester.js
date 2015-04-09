@@ -157,7 +157,11 @@ var Tester = new function() {
     }, function() {
       report.insert('Error'.fontcolor('red'), file);
     });
-    head.insertBefore(iframe, head.firstChild);
+    on(window, 'load', function() {
+      iframe.style.position = 'absolute';
+      iframe.style.left = '-9999px';
+      document.body.appendChild(iframe, document.body.firstChild);
+    });
     return promise;
   };
 
