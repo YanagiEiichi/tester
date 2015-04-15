@@ -157,11 +157,12 @@ var Tester = new function() {
     }, function() {
       report.insert('Error'.fontcolor('red'), file);
     });
-    on(window, 'load', function() {
+    var insert = function() {
       iframe.style.position = 'absolute';
       iframe.style.left = '-9999px';
       document.body.appendChild(iframe, document.body.firstChild);
-    });
+    };
+    document.body ? insert() : on(window, 'load', insert);
     return promise;
   };
 
