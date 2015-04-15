@@ -9,6 +9,7 @@ var Tester = new function() {
     var css = '\
       .tester { border-collapse: collapse; }\
       .tester td { border: 1px solid #ccc; padding: 5px; }\
+      .tester a { color: #00f; }\
       .tester tr:first-child td { background: #eee; font-weight: bold; }\
     ';
     if(style.styleSheet && 'cssText' in style.styleSheet) {
@@ -33,8 +34,14 @@ var Tester = new function() {
     return {
       insert: function(status, file) {
         var row = table.insertRow(-1);
+        var tr;
         row.insertCell().innerHTML = new Date().toLocaleString();
-        row.insertCell().innerHTML = file;
+        var tr = row.insertCell();
+        var link = document.createElement('a');
+        link.target = '_blank';
+        link.href = file;
+        link.innerHTML = file;
+        tr.appendChild(link);
         row.insertCell().innerHTML = status;
       },
       end: function(message) {
