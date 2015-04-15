@@ -34,14 +34,14 @@ var Tester = new function() {
     return {
       insert: function(status, file) {
         var row = table.insertRow(-1);
-        var tr;
-        row.insertCell().innerHTML = new Date().toLocaleString();
-        var tr = row.insertCell();
+        var date = new Date();
+        date = (date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()).replace(/\b\d\b/g, '0$&') + '.' + ('00' + date.getMilliseconds()).slice(-3);
+        row.insertCell().innerHTML = date;
         var link = document.createElement('a');
         link.target = '_blank';
         link.href = file;
         link.innerHTML = file;
-        tr.appendChild(link);
+        row.insertCell().appendChild(link);
         row.insertCell().innerHTML = status;
       },
       end: function(message) {
