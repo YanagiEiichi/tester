@@ -1,4 +1,7 @@
 var Tester = new function() {
+
+  if(!console.error) console.error = function(message) { console.log('[ERROR] ' + message); };
+
   var heap = {};
   var head = document.documentElement.firstChild;
 
@@ -183,6 +186,13 @@ var Tester = new function() {
     }), '*');
   };
 
+  this.assert = function(condition, message) {
+    if(condition) return;
+    this.feedback(false);
+    var errorMessage = 'Assertor Rejected: ' + message;
+    console.error(errorMessage);
+  };
+
   this.run = function() {
     var report = createReport();
     var tests = Array.prototype.slice.call(arguments);
@@ -198,5 +208,6 @@ var Tester = new function() {
     });
     return promise;
   };
+
 }();
 
