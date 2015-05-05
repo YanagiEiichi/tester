@@ -22,36 +22,62 @@ var Tester = new function() {
     }
   };
 
-  var createReport  = function() {
+  var createReport = function(tests) {
     if(!document.querySelector('#tester')) initStyle();
     var table = document.createElement('table');
     table.className = 'tester';
     var row = table.insertRow(-1);
-    row.insertCell().innerHTML = 'Time';
+    var state = row.insertCell();
+    state.width = 80;
+    state.innerHTML = 'State';
     row.insertCell().innerHTML = 'File';
-    row.insertCell().innerHTML = 'State';
+    var time = row.insertCell();
+    time.innerHTML = 'Time';
+    time.width = 80;
     var append = function() {
       document.body.appendChild(table);
     };
     document.readyState === 'complete' ? append() : on(window, 'load', append);
+    var testMap = {};
+    var addTest = function(file) {
+      var row = table.insertRow(-1);
+      var link = document.createElement('a');
+      link.href = file;
+      link.target = '_blank';
+      link.innerHTML = file;
+      var status = row.insertCell();
+      row.insertCell().appendChild(link);
+      var time = row.insertCell();
+      status.innerHTML = 'Pending'.fontcolor('gray');
+      return { status: status, time: time };
+    }
+    var walker = function(args) {
+      for(var i = 0; i < args.length; i++) {
+        if(args[i] instanceof Array) {
+          walker(args[i]);
+        } else {
+          testMap[args[i]] = addTest(args[i]);
+        }
+      }
+    };
+    walker(tests);
     return {
-      insert: function(status, file) {
-        var row = table.insertRow(-1);
-        var date = new Date();
-        date = (date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()).replace(/\b\d\b/g, '0$&') + '.' + ('00' + date.getMilliseconds()).slice(-3);
-        row.insertCell().innerHTML = date;
-        var link = document.createElement('a');
-        link.target = '_blank';
-        link.href = file;
-        link.innerHTML = file;
-        row.insertCell().appendChild(link);
-        row.insertCell().innerHTML = status;
-      },
-      end: function(message) {
-        var row = table.insertRow(-1);
-        var cell = row.insertCell();
-        cell.setAttribute('colspan', 3);
-        cell.innerHTML = message;
+      setPromise: function(file, promise) {
+        var item = testMap[file];
+        var startTime = new Date().getTime();
+        item.status.innerHTML = 'Running'.fontcolor('brown');
+        var itv = setInterval(function() {
+          item.time.innerHTML = new Date().getTime() - startTime + ' ms';
+        }, 16);
+        promise.then(function() {
+          clearInterval(itv);
+          item.status.innerHTML = 'OK'.fontcolor('green');
+          item.time.innerHTML = new Date().getTime() - startTime + ' ms';
+        }, function() {
+          clearInterval(itv);
+          item.status.innerHTML = 'Error'.fontcolor('red');
+          item.time.innerHTML = 'N/A';
+        });
       }
     };
   };
@@ -162,11 +188,8 @@ var Tester = new function() {
     var promise = new SimplePromise(function(resolve, reject) {
       heap[iframe.src] = { resolve: resolve, reject: reject };
       setTimeout(reject, 5000, file);
-    }).then(function() {
-      report.insert('OK'.fontcolor('green'), file);
-    }, function() {
-      report.insert('Error'.fontcolor('red'), file);
     });
+    report.setPromise(file, promise);
     var insert = function() {
       iframe.style.position = 'absolute';
       iframe.style.left = '-9999px';
@@ -194,18 +217,15 @@ var Tester = new function() {
   };
 
   this.run = function() {
-    var report = createReport();
     var tests = Array.prototype.slice.call(arguments);
+    var report = createReport(tests);
     var promise = reduce(tests, function(promise, file) {
       return promise.then(function() {
         return runTest(report, file);
+      }, function() {
+        throw file;
       });
     }, runTest(report, tests.shift()));
-    promise.then(function() {
-      report.end('Success');
-    }, function() {
-      report.end('Error');
-    });
     return promise;
   };
 
