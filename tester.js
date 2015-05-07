@@ -21,10 +21,24 @@ var Tester = new function() {
     style.id = 'tester';
     head.insertBefore(style, head.firstChild);
     var css = '\
-      .tester { border-collapse: collapse; }\
+      .tester { border-collapse: collapse; font-size: 14px; font-family: monospace; }\
       .tester td { border: 1px solid #ccc; padding: 5px; }\
       .tester a { color: #00f; }\
       .tester tr:first-child td { background: #eee; font-weight: bold; }\
+      .tester td:first-child { position: relative; }\
+      .tester-panel { display: none; font-size: 12px; }\
+      .tester-haslog .tester-panel { display: table-cell; }\
+      .tester-haslog td:first-child a {\
+        font-size: 12px;\
+        text-decoration: none;\
+        line-height: 14px;\
+        background: #ccc;\
+        color: #fff;\
+        font-style: normal;\
+        padding: 0px 3px;\
+        margin-left: 5px;\
+        border-radius: 4px;\
+      }\
     ';
     if(style.styleSheet && 'cssText' in style.styleSheet) {
       style.styleSheet.cssText = css;
@@ -56,11 +70,17 @@ var Tester = new function() {
       link.href = file;
       link.target = '_blank';
       link.innerHTML = file;
-      var status = row.insertCell();
+      var firstTd = row.insertCell(-1);
+      var status = document.createElement('span');
+      firstTd.appendChild(status);
       row.insertCell().appendChild(link);
-      var time = row.insertCell();
+      var time = row.insertCell(-1);
+      time.align = 'right';
       status.innerHTML = 'Pending'.fontcolor('gray');
-      return { status: status, time: time };
+      var panel = table.insertRow(-1).insertCell(-1);
+      panel.colSpan = 4;
+      panel.className = 'tester-panel';
+      return { firstTd: firstTd, status: status, time: time, panel: panel, row: row };
     }
     var walker = function(args) {
       for(var i = 0; i < args.length; i++) {
@@ -73,6 +93,28 @@ var Tester = new function() {
     };
     walker(tests);
     return {
+      log: function(file, message) {
+        var item = testMap[file];
+        var status = item.status;
+        var firstTd = item.firstTd;
+        var num = firstTd.lastChild;
+        if(num.tagName !== 'A') {
+          item.row.className = 'tester-haslog';
+          num = document.createElement('a');
+          num.innerHTML = '0';
+          num.href = 'JavaScript:';
+          num.onclick = function() {
+            if(item.panel.style.display === 'block') {
+              item.panel.style.display = '';
+            } else {
+              item.panel.style.display = 'block';
+            }
+          }
+          firstTd.appendChild(num);
+        }
+        num.innerHTML++;
+        item.panel.insertAdjacentHTML('beforeend', message + '<br/>');
+      },
       setPromise: function(file, promise) {
         var item = testMap[file];
         var startTime = new Date().getTime();
@@ -109,11 +151,21 @@ var Tester = new function() {
   on(window, 'message', function(e) {
     var data;
     try { data = JSON.parse(e.data); } catch(error) { data = {}; };
-    if(data.jsonrpc !== '2.0' || data.method !== 'Tester.feedback') return;
-    path = data.params[0];
-    result = data.params[1];
-    file = path.match(/[^/]+$/)[0];
-    if(heap[path]) heap[path][result ? 'resolve' : 'reject'](file);
+    if(data.jsonrpc !== '2.0') return;
+    switch(data.method) {
+      case 'Tester.feedback':
+        path = data.params[0];
+        result = data.params[1];
+        file = path.match(/[^/]+$/)[0];
+        if(heap[path]) heap[path][result ? 'resolve' : 'reject'](file);
+        break;
+      case 'Tester.log':
+        path = data.params[0];
+        message = data.params[1];
+        file = path.match(/[^/]+$/)[0];
+        if(heap[path]) heap[path].log(message);
+        break;
+    }
   });
 
   var SimplePromise = function(resolver) {
@@ -196,8 +248,11 @@ var Tester = new function() {
     }
     var iframe = document.createElement('iframe');
     iframe.src = file;
+    var log = function(message) {
+      report.log(file, message);
+    };
     var promise = new SimplePromise(function(resolve, reject) {
-      heap[iframe.src] = { resolve: resolve, reject: reject };
+      heap[iframe.src] = { resolve: resolve, reject: reject, log: log };
       setTimeout(reject, 5000, file);
     });
     report.setPromise(file, promise);
@@ -212,7 +267,7 @@ var Tester = new function() {
 
   this.feedback = function(result) {
     // '===' will be error on IE8
-    if(parent == window) return console.log(result);
+    if(parent == window) return console.log('[feedback] ' + result);
     parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.feedback',
@@ -225,6 +280,16 @@ var Tester = new function() {
     this.feedback(false);
     var errorMessage = 'Assertor Rejected: ' + message;
     console.error(errorMessage);
+  };
+
+  this.log = function(message) {
+    // '===' will be error on IE8
+    if(parent == window) return console.log(result);
+    parent.postMessage(JSON.stringify({
+      'jsonrpc': '2.0',
+      'method': 'Tester.log',
+      'params': [ location.href, message ]
+    }), '*');
   };
 
   this.run = function() {
