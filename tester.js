@@ -1,6 +1,17 @@
 var Tester = new function() {
 
-  if(!console.error) console.error = function(message) { console.log('[ERROR] ' + message); };
+  var console = {
+    log: function(message) {
+      if(window.console && window.console.log) window.console.log(message);
+    },
+    error: function(message) {
+      if(window.console && window.console.error) {
+        window.console.error(message);
+      } else {
+        console.log('[ERROR] ' + message);
+      }
+    }
+  }
 
   var heap = {};
   var head = document.documentElement.firstChild;
