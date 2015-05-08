@@ -284,7 +284,7 @@ var Tester = new function() {
 
   this.log = function(message) {
     // '===' will be error on IE8
-    if(parent == window) return console.log(result);
+    if(parent == window) return console.log(message);
     parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.log',
