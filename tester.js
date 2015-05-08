@@ -53,7 +53,7 @@ var Tester = new function() {
     table.className = 'tester';
     var row = table.insertRow(-1);
     var state = row.insertCell();
-    state.width = 80;
+    state.width = 120;
     state.innerHTML = 'State';
     row.insertCell().innerHTML = 'File';
     var time = row.insertCell();
@@ -94,26 +94,46 @@ var Tester = new function() {
     walker(tests);
     return {
       log: function(file, message) {
+        var name = 'tester-log';
         var item = testMap[file];
         var status = item.status;
         var firstTd = item.firstTd;
-        var num = firstTd.lastChild;
-        if(num.tagName !== 'A') {
+        var num = firstTd.querySelector('.' + name);
+        if(!num) {
           item.row.className = 'tester-haslog';
           num = document.createElement('a');
+          num.className = name;
           num.innerHTML = '0';
+          num.style.background = '#ccc';
           num.href = 'JavaScript:';
           num.onclick = function() {
-            if(item.panel.style.display === 'block') {
-              item.panel.style.display = '';
-            } else {
-              item.panel.style.display = 'block';
-            }
+            item.panel.style.display = !item.panel.style.display ? 'block' : '';
           }
           firstTd.appendChild(num);
         }
         num.innerHTML++;
         item.panel.insertAdjacentHTML('beforeend', message + '<br/>');
+      },
+      error: function(file, message) {
+        var name = 'tester-error';
+        var item = testMap[file];
+        var status = item.status;
+        var firstTd = item.firstTd;
+        var num = firstTd.querySelector('.' + name);
+        if(!num) {
+          item.row.className = 'tester-haslog';
+          num = document.createElement('a');
+          num.className = name;
+          num.innerHTML = '0';
+          num.style.background = '#e99';
+          num.href = 'JavaScript:';
+          num.onclick = function() {
+            item.panel.style.display = !item.panel.style.display ? 'block' : '';
+          }
+          firstTd.appendChild(num);
+        }
+        num.innerHTML++;
+        item.panel.insertAdjacentHTML('beforeend', message.fontcolor('#e00') + '<br/>');
       },
       setPromise: function(file, promise) {
         var item = testMap[file];
@@ -164,6 +184,12 @@ var Tester = new function() {
         message = data.params[1];
         file = path.match(/[^/]+$/)[0];
         if(heap[path]) heap[path].log(message);
+        break;
+      case 'Tester.error':
+        path = data.params[0];
+        message = data.params[1];
+        file = path.match(/[^/]+$/)[0];
+        if(heap[path]) heap[path].error(message);
         break;
     }
   });
@@ -251,8 +277,16 @@ var Tester = new function() {
     var log = function(message) {
       report.log(file, message);
     };
+    var error = function(message) {
+      report.error(file, message);
+    };
     var promise = new SimplePromise(function(resolve, reject) {
-      heap[iframe.src] = { resolve: resolve, reject: reject, log: log };
+      heap[iframe.src] = {
+        resolve: resolve,
+        reject: reject,
+        log: log,
+        error: error
+      };
       setTimeout(reject, 5000, file);
     });
     report.setPromise(file, promise);
@@ -275,13 +309,6 @@ var Tester = new function() {
     }), '*');
   };
 
-  this.assert = function(condition, message) {
-    if(condition) return;
-    this.feedback(false);
-    var errorMessage = 'Assertor Rejected: ' + message;
-    console.error(errorMessage);
-  };
-
   this.log = function(message) {
     // '===' will be error on IE8
     if(parent == window) return console.log(message);
@@ -290,6 +317,23 @@ var Tester = new function() {
       'method': 'Tester.log',
       'params': [ location.href, message ]
     }), '*');
+  };
+
+  this.error = function(message) {
+    // '===' will be error on IE8
+    if(parent == window) return console.error(message);
+    parent.postMessage(JSON.stringify({
+      'jsonrpc': '2.0',
+      'method': 'Tester.error',
+      'params': [ location.href, message ]
+    }), '*');
+  };
+
+  this.assert = function(condition, message) {
+    if(condition) return;
+    this.feedback(false);
+    var errorMessage = 'Assertor Rejected: ' + message;
+    console.error(errorMessage);
   };
 
   this.run = function() {

@@ -1,0 +1,31 @@
+<script src="../tester.js"></script>
+<script>
+var iLog = 20;
+var iError = 20;
+
+var doneList = [ function() {
+  Tester.feedback(true);
+}, function() {} ];
+
+var logtest = function() {
+  Tester.log('this is log' + iLog--);
+  if(iLog) {
+    setTimeout(logtest, 60);
+  } else {
+    doneList.pop()();
+  }
+};
+
+var errortest = function() {
+  Tester.error('this is error' + iError--);
+  if(iError) {
+    setTimeout(errortest, 60);
+  } else {
+    doneList.pop()();
+  }
+};
+
+logtest();
+errortest();
+</script>
+
