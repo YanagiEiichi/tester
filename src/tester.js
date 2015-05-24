@@ -194,62 +194,6 @@ var Tester = new function() {
     }
   });
 
-  var SimplePromise = function(resolver) {
-    var status = -1;
-    var result;
-    var queue = [];
-    queue.trigger = function() {
-      if(status === -1) return;
-      for(var i = 0; i < queue.length; i++) {
-        var handler = queue[i][status];
-        var $result = typeof handler === 'function' ? handler(result) : result;
-        queue[i].callback($result);
-      }
-      queue.splice(0);
-    };
-    resolver(function(value) {
-      if(status !== -1) return;
-      status = 0;
-      result = value;
-      queue.trigger();
-    }, function(value) {
-      if(status !== -1) return;
-      status = 1;
-      result = value;
-      queue.trigger();
-    });
-    this.then = function(done, fail) {
-      var $resolve, $reject;
-      var chain = new SimplePromise(function(resolve, reject) {
-        $resolve = resolve, $reject = reject;
-        if(result);
-      });
-      arguments.callback = function($result) {
-        if($result && typeof $result.then === 'function') {
-          $result.then($resolve, $reject);
-        } else {
-          $resolve($result);
-        };
-      };
-      queue.push(arguments);
-      queue.trigger();
-      return chain;
-    };
-  };
-  SimplePromise.all = function(array) {
-    return new SimplePromise(function(resolve, reject) {
-      var count = array.length;
-      var result = [];
-      if(!count) return resolve(result);
-      for(var i = 0; i < array.length; i++) void function(i) {
-        array[i].then(function(data) {
-          result[i] = data;
-          if(!--count) resolve(result);
-        }, reject);
-      }(i);
-    });
-  };
-
   var map = function(array, callback) {
     var result = [];
     for(var i = 0; i < array.length; i++) {
@@ -268,7 +212,7 @@ var Tester = new function() {
 
   var runTest = function(report, file) {
     if(file instanceof Array) {
-      return SimplePromise.all(map(file, function(file) {
+      return Promise.all(map(file, function(file) {
         return runTest(report, file);
       }));
     }
@@ -280,7 +224,7 @@ var Tester = new function() {
     var error = function(message) {
       report.error(file, message);
     };
-    var promise = new SimplePromise(function(resolve, reject) {
+    var promise = new Promise(function(resolve, reject) {
       heap[iframe.src] = {
         resolve: resolve,
         reject: reject,

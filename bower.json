@@ -18,5 +18,8 @@
   "keywords": [
     "unit",
     "tester"
-  ]
+  ],
+  "dependencies": {
+    "promise.js": "git@github.com:YanagiEiichi/promise.js#f6f859e"
+  }
 }
