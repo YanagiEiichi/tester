@@ -14,11 +14,11 @@ var Tester = new function() {
   }
 
   var heap = {};
-  var head = document.documentElement.firstChild;
 
   var initStyle = function() {
     var style = document.createElement('style');
     style.id = 'tester';
+    var head = document.documentElement.firstChild;
     head.insertBefore(style, head.firstChild);
     var css = '\
       .tester { border-collapse: collapse; font-size: 14px; font-family: monospace; }\
