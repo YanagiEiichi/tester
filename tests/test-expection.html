@@ -1,0 +1,64 @@
+<script src="../tester.js"></script>
+<script>
+var exp = new Tester.Expection([
+  true,
+  false
+]);
+exp.then(function() {
+  Tester.feedback(true);
+}, function() {
+  Tester.feedback(false);
+});
+
+
+var exp1 = new Tester.Expection(
+  'result1',
+  'result2',
+  [
+    'result3',
+    'result4'
+  ]
+);
+exp1.then(function() {
+  Tester.log('exp1 is true');
+  exp.answer(true);
+}, function() {
+  Tester.error('exp1 is false');
+  exp.answer(false);
+});
+
+
+var exp2 = new Tester.Expection(
+  'result1',
+  'result2',
+  'result3',
+  'result4'
+);
+exp2.then(function() {
+  Tester.log('exp2 is true');
+  exp.answer(true);
+}, function() {
+  Tester.error('exp2 is false');
+  exp.answer(false);
+});
+
+
+
+setTimeout(function() {
+  exp1.answer('result1');
+  exp2.answer('result1');
+});
+setTimeout(function() {
+  exp1.answer('result2');
+  exp2.answer('result2');
+});
+setTimeout(function() {
+  exp1.answer('result4');
+  exp2.answer('result4');
+});
+setTimeout(function() {
+  exp1.answer('result3');
+  exp2.answer('result3');
+});
+</script>
+

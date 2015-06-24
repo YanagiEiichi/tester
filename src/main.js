@@ -295,3 +295,34 @@ var Tester = new function() {
 
 }();
 
+Tester.Expection = function() {
+  var that = this;
+  [].push.apply(this, arguments);
+  this.promise = new Promise(function(resolve, reject) {
+    that.answer = function(result) {
+      var top = this[0];
+      if(JSON.stringify(result) === JSON.stringify(top)) {
+        this.shift();
+      } else if(top instanceof Array) {
+        for(var i = 0; i < top.length; i++) {
+          if(JSON.stringify(top[i]) === JSON.stringify(result)) {
+            top.splice(i, 1);
+            i = 0 / 0;
+          }
+        }
+        if(i !== i) {
+          if(top.length === 0) this.shift();
+        } else {
+          return reject();
+        }
+      } else {
+        return reject();
+      }
+      if(this.length === 0) resolve();
+    }
+  });
+};
+Tester.Expection.prototype = [];
+Tester.Expection.prototype.answer = Function.prototype;
+Tester.Expection.prototype.then = function(done, fail) { this.promise.then(done, fail); };
+Tester.Expection.prototype['catch'] = function(fail) { this.promise.then(null, fail); };
