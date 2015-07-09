@@ -324,5 +324,7 @@ Tester.Expection = function() {
 };
 Tester.Expection.prototype = [];
 Tester.Expection.prototype.answer = Function.prototype;
-Tester.Expection.prototype.then = function(done, fail) { this.promise.then(done, fail); };
-Tester.Expection.prototype['catch'] = function(fail) { this.promise.then(null, fail); };
+Tester.Expection.prototype.then = function(done, fail) { return this.promise.then(done, fail); };
+Tester.Expection.prototype['catch'] = function(fail) { return this.promise.then(null, fail); };
+Tester.Expection.prototype.done = function(done) { return this.promise.then(done), this; };
+Tester.Expection.prototype.fail = function(fail) { return this.promise.then(null, fail), this; };

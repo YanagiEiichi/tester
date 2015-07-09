@@ -3,10 +3,9 @@
 var exp = new Tester.Expection([
   true,
   false
-]);
-exp.then(function() {
+]).done(function() {
   Tester.feedback(true);
-}, function() {
+}).fail(function() {
   Tester.feedback(false);
 });
 
