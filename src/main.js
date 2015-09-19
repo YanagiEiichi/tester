@@ -52,11 +52,11 @@ var Tester = new function() {
     var table = document.createElement('table');
     table.className = 'tester';
     var row = table.insertRow(-1);
-    var state = row.insertCell();
+    var state = row.insertCell(-1);
     state.width = 120;
     state.innerHTML = 'State';
-    row.insertCell().innerHTML = 'File';
-    var time = row.insertCell();
+    row.insertCell(-1).innerHTML = 'File';
+    var time = row.insertCell(-1);
     time.innerHTML = 'Time';
     time.width = 80;
     var append = function() {
@@ -73,7 +73,7 @@ var Tester = new function() {
       var firstTd = row.insertCell(-1);
       var status = document.createElement('span');
       firstTd.appendChild(status);
-      row.insertCell().appendChild(link);
+      row.insertCell(-1).appendChild(link);
       var time = row.insertCell(-1);
       time.align = 'right';
       status.innerHTML = 'Pending'.fontcolor('gray');
