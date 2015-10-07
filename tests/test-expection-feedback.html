@@ -1,0 +1,25 @@
+<script src="../tester.js"></script>
+<script>
+var exp = new Tester.Expection(
+  'result1',
+  'result2',
+  [
+    'result3',
+    'result4'
+  ]
+).feedback();
+
+setTimeout(function() {
+  exp.answer('result1');
+});
+setTimeout(function() {
+  exp.answer('result2');
+});
+setTimeout(function() {
+  exp.answer('result4');
+});
+setTimeout(function() {
+  exp.answer('result3');
+});
+</script>
+

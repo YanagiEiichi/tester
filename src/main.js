@@ -244,6 +244,15 @@ var Tester = new function() {
   };
 
   this.feedback = function(result) {
+    var that = this;
+    if(typeof result.then === 'function') {
+      result.then(function() {
+        that.feedback(true);
+      }, function() {
+        that.feedback(false);
+      });
+      return;
+    }
     // '===' will be error on IE8
     if(parent == window) return console.log('[feedback] ' + result);
     parent.postMessage(JSON.stringify({
@@ -328,3 +337,4 @@ Tester.Expection.prototype.then = function(done, fail) { return this.promise.the
 Tester.Expection.prototype['catch'] = function(fail) { return this.promise.then(null, fail); };
 Tester.Expection.prototype.done = function(done) { return this.promise.then(done), this; };
 Tester.Expection.prototype.fail = function(fail) { return this.promise.then(null, fail), this; };
+Tester.Expection.prototype.feedback = function() { return Tester.feedback(this.promise), this; };
