@@ -243,6 +243,8 @@ var Tester = new function() {
     return promise;
   };
 
+  this.href = location.href;
+
   this.feedback = function(result) {
     var that = this;
     if(typeof result.then === 'function') {
@@ -258,7 +260,7 @@ var Tester = new function() {
     parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.feedback',
-      'params': [ location.href, result ]
+      'params': [ this.href, result ]
     }), '*');
   };
 
@@ -268,7 +270,7 @@ var Tester = new function() {
     parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.log',
-      'params': [ location.href, message ]
+      'params': [ this.href, message ]
     }), '*');
   };
 
@@ -278,7 +280,7 @@ var Tester = new function() {
     parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.error',
-      'params': [ location.href, message ]
+      'params': [ this.href, message ]
     }), '*');
   };
 
