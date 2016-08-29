@@ -2,4 +2,3 @@
 *.log
 bower_components
 node_modules
-tester.js
