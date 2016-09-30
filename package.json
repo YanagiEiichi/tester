@@ -1,0 +1,25 @@
+{
+  "name": "ui-tester",
+  "version": "1.0.0",
+  "description": "ui-tester",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YanagiEiichi/tester.git"
+  },
+  "bin": {
+    "ui-tester-start": "start.js"
+  },
+  "scripts": {
+    "prepublish": "cat node_modules/es6-promise/dist/es6-promise.auto.min.js src/* >> tester.js && uglifyjs tester.js -o tester.js"
+  },
+  "author": "YanagiEiichi <admin@web-tinker.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "es6-promise": "^4.0.3",
+    "uglify-js": "^2.7.3"
+  },
+  "dependencies": {
+    "node-static": "^0.7.8"
+  }
+}
