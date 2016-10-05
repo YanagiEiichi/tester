@@ -1,6 +1,6 @@
 {
   "name": "ui-tester",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "ui-tester",
   "main": "tester.js",
   "repository": {
@@ -11,6 +11,7 @@
     "ui-tester-start": "start.js"
   },
   "scripts": {
+    "test": "./start.js",
     "prepublish": "cat node_modules/es6-promise/dist/es6-promise.auto.min.js src/* >> tester.js && uglifyjs tester.js -o tester.js"
   },
   "author": "YanagiEiichi <admin@web-tinker.com>",
@@ -20,6 +21,8 @@
     "uglify-js": "^2.7.3"
   },
   "dependencies": {
+    "argollector": "^1.0.0",
+    "glob": "^7.1.0",
     "node-static": "^0.7.8"
   }
 }
