@@ -42,7 +42,7 @@ var html = [
   '</script>'
 ].join('\n');
 
-var tester = fs.readFileSync('./tester.js');
+var tester = fs.readFileSync(path.join(__dirname, 'tester.js'));
 
 var server = http.createServer(function(req, res) {
   switch (req.url.match(/[^?]*/)[0]) {
