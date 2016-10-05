@@ -78,7 +78,7 @@ var Tester = new function() {
       time.align = 'right';
       status.innerHTML = 'Pending'.fontcolor('gray');
       var panel = table.insertRow(-1).insertCell(-1);
-      panel.colSpan = 4;
+      panel.colSpan = 3;
       panel.className = 'tester-panel';
       return { firstTd: firstTd, status: status, time: time, panel: panel, row: row };
     }
@@ -107,7 +107,7 @@ var Tester = new function() {
           num.style.background = '#ccc';
           num.href = 'JavaScript:';
           num.onclick = function() {
-            item.panel.style.display = !item.panel.style.display ? 'block' : '';
+            item.panel.style.display = !item.panel.style.display ? 'table-cell' : '';
           }
           firstTd.appendChild(num);
         }
@@ -128,7 +128,7 @@ var Tester = new function() {
           num.style.background = '#e99';
           num.href = 'JavaScript:';
           num.onclick = function() {
-            item.panel.style.display = !item.panel.style.display ? 'block' : '';
+            item.panel.style.display = !item.panel.style.display ? 'table-cell' : '';
           }
           firstTd.appendChild(num);
         }
