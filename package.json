@@ -12,7 +12,8 @@
   },
   "scripts": {
     "test": "./start.js tests/*",
-    "prepublish": "cat node_modules/es6-promise/dist/es6-promise.auto.min.js src/* >> tester.js && uglifyjs tester.js -o tester.js"
+    "prepublish": "cat node_modules/es6-promise/dist/es6-promise.auto.min.js src/* >> tester.js && uglifyjs tester.js -o tester.js",
+    "tag": "git checkout HEAD~0 && git add -f tester.js && git commit -m 'RELEASE' && git tag $(node -pe 'require(\"./package.json\").version') && git checkout -"
   },
   "author": "YanagiEiichi <admin@web-tinker.com>",
   "license": "MIT",
