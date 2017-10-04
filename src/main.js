@@ -1,17 +1,16 @@
 var Tester = new function() {
-
   var console = {
     log: function(message) {
-      if(window.console && window.console.log) window.console.log(message);
+      if (window.console && window.console.log) window.console.log(message);
     },
     error: function(message) {
-      if(window.console && window.console.error) {
+      if (window.console && window.console.error) {
         window.console.error(message);
       } else {
         console.log('[ERROR] ' + message);
       }
     }
-  }
+  };
 
   var heap = {};
 
@@ -40,7 +39,7 @@ var Tester = new function() {
         border-radius: 4px;\
       }\
     ';
-    if(style.styleSheet && 'cssText' in style.styleSheet) {
+    if (style.styleSheet && 'cssText' in style.styleSheet) {
       style.styleSheet.cssText = css;
     } else {
       style.innerHTML = css;
@@ -48,7 +47,7 @@ var Tester = new function() {
   };
 
   var createReport = function(tests) {
-    if(!document.querySelector('#tester')) initStyle();
+    if (!document.querySelector('#tester')) initStyle();
     var table = document.createElement('table');
     table.className = 'tester';
     var row = table.insertRow(-1);
@@ -62,7 +61,7 @@ var Tester = new function() {
     var append = function() {
       document.body.appendChild(table);
     };
-    document.readyState === 'complete' ? append() : on(window, 'load', append);
+    document.readyState === 'compvare' ? append() : on(window, 'load', append);
     var testMap = {};
     var addTest = function(file) {
       var row = table.insertRow(-1);
@@ -81,11 +80,11 @@ var Tester = new function() {
       var panel = table.insertRow(-1).insertCell(-1);
       panel.colSpan = 3;
       panel.className = 'tester-panel';
-      return { firstTd: firstTd, status: status, time: time, panel: panel, row: row };
-    }
+      return {firstTd: firstTd, status: status, time: time, panel: panel, row: row};
+    };
     var walker = function(args) {
-      for(var i = 0; i < args.length; i++) {
-        if(args[i] instanceof Array) {
+      for (var i = 0; i < args.length; i++) {
+        if (args[i] instanceof Array) {
           walker(args[i]);
         } else {
           testMap[args[i]] = addTest(args[i]);
@@ -98,9 +97,10 @@ var Tester = new function() {
         var name = 'tester-log';
         var item = testMap[file];
         var status = item.status;
+        void status;
         var firstTd = item.firstTd;
         var num = firstTd.querySelector('.' + name);
-        if(!num) {
+        if (!num) {
           item.row.className = 'tester-haslog';
           num = document.createElement('a');
           num.className = name;
@@ -109,7 +109,7 @@ var Tester = new function() {
           num.href = 'JavaScript:';
           num.onclick = function() {
             item.panel.style.display = !item.panel.style.display ? 'table-cell' : '';
-          }
+          };
           firstTd.appendChild(num);
         }
         num.innerHTML++;
@@ -119,9 +119,10 @@ var Tester = new function() {
         var name = 'tester-error';
         var item = testMap[file];
         var status = item.status;
+        void status;
         var firstTd = item.firstTd;
         var num = firstTd.querySelector('.' + name);
-        if(!num) {
+        if (!num) {
           item.row.className = 'tester-haslog';
           num = document.createElement('a');
           num.className = name;
@@ -130,7 +131,7 @@ var Tester = new function() {
           num.href = 'JavaScript:';
           num.onclick = function() {
             item.panel.style.display = !item.panel.style.display ? 'table-cell' : '';
-          }
+          };
           firstTd.appendChild(num);
         }
         num.innerHTML++;
@@ -162,42 +163,46 @@ var Tester = new function() {
       e.target = e.target || e.srcElement;
       handler.call(e.target, e);
     };
-    if(element.addEventListener) {
+    if (element.addEventListener) {
       element.addEventListener(type, wrapper, true);
-    } else if(element.attachEvent) {
+    } else if (element.attachEvent) {
       element.attachEvent('on' + type, wrapper);
     }
   };
 
   on(window, 'message', function(e) {
-    var data;
-    try { data = JSON.parse(e.data); } catch(error) { data = {}; };
-    if(data.jsonrpc !== '2.0') return;
-    switch(data.method) {
+    var data, message, path, file, result;
+    try {
+      data = JSON.parse(e.data);
+    } catch (error) {
+      data = {};
+    };
+    if (data.jsonrpc !== '2.0') return;
+    switch (data.method) {
       case 'Tester.feedback':
         path = data.params[0];
         result = data.params[1];
         file = path.match(/[^/]+$/)[0];
-        if(heap[path]) heap[path][result ? 'resolve' : 'reject'](file);
+        if (heap[path]) heap[path][result ? 'resolve' : 'reject'](file);
         break;
       case 'Tester.log':
         path = data.params[0];
         message = data.params[1];
         file = path.match(/[^/]+$/)[0];
-        if(heap[path]) heap[path].log(message);
+        if (heap[path]) heap[path].log(message);
         break;
       case 'Tester.error':
         path = data.params[0];
         message = data.params[1];
         file = path.match(/[^/]+$/)[0];
-        if(heap[path]) heap[path].error(message);
+        if (heap[path]) heap[path].error(message);
         break;
     }
   });
 
   var map = function(array, callback) {
     var result = [];
-    for(var i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       result[i] = callback(array[i], i);
     }
     return result;
@@ -205,22 +210,30 @@ var Tester = new function() {
 
   var reduce = function(array, callback, init) {
     var result = init;
-    for(var i = 0; i < array.length; i++) {
+    for (var i = 0; i < array.length; i++) {
       result = callback(result, array[i], i);
     }
     return result;
   };
 
   var runTest = function(report, file) {
-    if(file instanceof Array) return Promise.all(map(file, function(file) { return runTest(report, file); }));
+    if (file instanceof Array) {
+      return Promise.all(map(file, function(file) {
+        return runTest(report, file);
+      }));
+    }
     var iframe = document.createElement('iframe');
-    var log = function(message) { report.log(file, message); };
-    var error = function(message) { report.error(file, message); };
+    var log = function(message) {
+      report.log(file, message);
+    };
+    var error = function(message) {
+      report.error(file, message);
+    };
     iframe.src = file;
     var promise = new Promise(function(resolve, reject) {
-      heap[iframe.src] = { resolve: resolve, reject: reject, log: log, error: error };
+      heap[iframe.src] = {resolve: resolve, reject: reject, log: log, error: error};
     });
-    iframe.addEventListener('load', () => {
+    iframe.addEventListener('load', function() {
       setTimeout(heap[iframe.src].reject, 5000, file);
       report.setPromise(file, promise);
     });
@@ -237,7 +250,7 @@ var Tester = new function() {
 
   this.feedback = function(result) {
     var that = this;
-    if(typeof result.then === 'function') {
+    if (typeof result.then === 'function') {
       result.then(function() {
         that.feedback(true);
       }, function() {
@@ -246,36 +259,36 @@ var Tester = new function() {
       return;
     }
     // '===' will be error on IE8
-    if(parent == window) return console.log('[feedback] ' + result);
+    if (parent == window) return console.log('[feedback] ' + result); // eslint-disable-line eqeqeq
     parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.feedback',
-      'params': [ this.href, result ]
+      'params': [this.href, result]
     }), '*');
   };
 
   this.log = function(message) {
     // '===' will be error on IE8
-    if(parent == window) return console.log(message);
+    if (parent == window) return console.log(message); // eslint-disable-line eqeqeq
     parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.log',
-      'params': [ this.href, message ]
+      'params': [this.href, message]
     }), '*');
   };
 
   this.error = function(message) {
     // '===' will be error on IE8
-    if(parent == window) return console.error(message);
+    if (parent == window) return console.error(message); // eslint-disable-line eqeqeq
     parent.postMessage(JSON.stringify({
       'jsonrpc': '2.0',
       'method': 'Tester.error',
-      'params': [ this.href, message ]
+      'params': [this.href, message]
     }), '*');
   };
 
   this.assert = function(condition, message) {
-    if(condition) return;
+    if (condition) return;
     this.feedback(false);
     var errorMessage = 'Assertor Rejected: ' + message;
     console.error(errorMessage);
@@ -293,7 +306,6 @@ var Tester = new function() {
     }, runTest(report, tests.shift()));
     return promise;
   };
-
 }();
 
 Tester.Expection = function() {
@@ -302,31 +314,31 @@ Tester.Expection = function() {
   this.promise = new Promise(function(resolve, reject) {
     that.answer = function(result) {
       var top = this[0];
-      if(JSON.stringify(result) === JSON.stringify(top)) {
+      if (JSON.stringify(result) === JSON.stringify(top)) {
         this.shift();
-      } else if(top instanceof Array) {
-        for(var i = 0; i < top.length; i++) {
-          if(JSON.stringify(top[i]) === JSON.stringify(result)) {
+      } else if (top instanceof Array) {
+        for (var i = 0; i < top.length; i++) {
+          if (JSON.stringify(top[i]) === JSON.stringify(result)) {
             top.splice(i, 1);
             i = 0 / 0;
           }
         }
-        if(i !== i) {
-          if(top.length === 0) this.shift();
+        if (i !== i) {
+          if (top.length === 0) this.shift();
         } else {
           return reject();
         }
       } else {
         return reject();
       }
-      if(this.length === 0) resolve();
-    }
+      if (this.length === 0) resolve();
+    };
   });
 };
 Tester.Expection.prototype = [];
 Tester.Expection.prototype.answer = Function.prototype;
 Tester.Expection.prototype.then = function(done, fail) { return this.promise.then(done, fail); };
 Tester.Expection.prototype['catch'] = function(fail) { return this.promise.then(null, fail); };
-Tester.Expection.prototype.done = function(done) { return this.promise.then(done), this; };
-Tester.Expection.prototype.fail = function(fail) { return this.promise.then(null, fail), this; };
-Tester.Expection.prototype.feedback = function() { return Tester.feedback(this.promise), this; };
+Tester.Expection.prototype.done = function(done) { this.promise.then(done); return this; };
+Tester.Expection.prototype.fail = function(fail) { this.promise.then(null, fail); return this; };
+Tester.Expection.prototype.feedback = function() { Tester.feedback(this.promise); return this; };

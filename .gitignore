@@ -3,3 +3,4 @@
 bower_components
 node_modules
 tester.js
+tester.min.js

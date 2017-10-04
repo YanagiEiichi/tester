@@ -11,14 +11,17 @@
     "ui-tester-start": "start.js"
   },
   "scripts": {
+    "lint": "eslint src lib --fix",
     "test": "./start.js tests/*",
-    "prepublish": "cat node_modules/es6-promise/dist/es6-promise.auto.min.js src/* >> tester.js && uglifyjs tester.js -o tester.js",
+    "prepublish": "cat node_modules/es6-promise/dist/es6-promise.auto.min.js src/* > tester.js && uglifyjs tester.js -o tester.min.js",
     "tag": "git checkout HEAD~0 && git add -f tester.js && git commit -m 'RELEASE' && git tag $(node -pe 'require(\"./package.json\").version') && git checkout -"
   },
   "author": "YanagiEiichi <admin@web-tinker.com>",
   "license": "MIT",
   "devDependencies": {
     "es6-promise": "^4.0.3",
+    "eslint": "^4.8.0",
+    "eslint-config-elemefe": "^0.3.0",
     "uglify-js": "^2.7.3"
   },
   "dependencies": {
