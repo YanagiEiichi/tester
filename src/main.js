@@ -76,6 +76,7 @@ var Tester = new function() {
       row.insertCell(-1).appendChild(link);
       var time = row.insertCell(-1);
       time.align = 'right';
+      time.innerHTML = '-';
       status.innerHTML = 'Pending'.fontcolor('gray');
       var panel = table.insertRow(-1).insertCell(-1);
       panel.colSpan = 3;
@@ -211,29 +212,18 @@ var Tester = new function() {
   };
 
   var runTest = function(report, file) {
-    if(file instanceof Array) {
-      return Promise.all(map(file, function(file) {
-        return runTest(report, file);
-      }));
-    }
+    if(file instanceof Array) return Promise.all(map(file, function(file) { return runTest(report, file); }));
     var iframe = document.createElement('iframe');
+    var log = function(message) { report.log(file, message); };
+    var error = function(message) { report.error(file, message); };
     iframe.src = file;
-    var log = function(message) {
-      report.log(file, message);
-    };
-    var error = function(message) {
-      report.error(file, message);
-    };
     var promise = new Promise(function(resolve, reject) {
-      heap[iframe.src] = {
-        resolve: resolve,
-        reject: reject,
-        log: log,
-        error: error
-      };
-      setTimeout(reject, 5000, file);
+      heap[iframe.src] = { resolve: resolve, reject: reject, log: log, error: error };
     });
-    report.setPromise(file, promise);
+    iframe.addEventListener('load', () => {
+      setTimeout(heap[iframe.src].reject, 5000, file);
+      report.setPromise(file, promise);
+    });
     var insert = function() {
       iframe.style.position = 'absolute';
       iframe.style.left = '-9999px';
