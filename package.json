@@ -1,6 +1,6 @@
 {
   "name": "ui-tester",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "ui-tester",
   "main": "tester.js",
   "repository": {
@@ -25,6 +25,7 @@
     "coolest": "^1.0.1",
     "denodeify": "^1.2.1",
     "glob": "^7.1.0",
-    "node-static": "^0.7.10"
+    "mime": "^1.2.9",
+    "node-static": "^0.7.11"
   }
 }
